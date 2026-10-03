@@ -34,7 +34,7 @@ class ReturnEngine:
         div = input_data.dividend
         n = input_data.shares
         
-        # Core financial calculations (Equation 2.2 logic)
+        # Core financial calculations
         capital_gain_return = (vf - v0) / v0
         dividend_yield = div / v0
         total_return_rate = capital_gain_return + dividend_yield
@@ -91,9 +91,7 @@ class PortfolioService:
             }
 
 
-# ==========================================
 # Execution Hook / Example Test
-# ==========================================
 if __name__ == "__main__":
     # Test Payload
     payload = {
