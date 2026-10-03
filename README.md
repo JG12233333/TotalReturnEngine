@@ -52,7 +52,7 @@ Browser ticket
 ```
 
 1. `templates/index.html` is the ticket (inputs) and the statement (results). `static/js/app.js` reads the form and `static/css/app.css` draws it.
-2. Typing, submitting, or loading the sample sends JSON to `POST /api/analyze`. The page also runs once on load with the values already in the form.
+2. Typing, or loading the sample, sends JSON to `POST /api/analyze`. The page also runs once on load with the values already in the form.
 3. `app.py` turns the body into floats and an int. A blank dividend becomes `0`. A blank share count becomes `1`. Missing prices, or values that are not numbers, come back as `400`.
 4. `PortfolioService.process_investment_analysis` is the only public entry on the engine. It builds an `InvestmentInput`, which refuses a non-positive start price, a negative end price, a negative dividend, or a non-positive share count.
 5. `ReturnEngine.calculate_metrics` applies the formulas above and returns a `ReturnMetricsOutput`. The service rounds that into the JSON the page expects.
