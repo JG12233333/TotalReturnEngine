@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Return Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,560;0,9..144,680;1,9..144,480;1,9..144,640&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@320;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <aside class="spine" aria-hidden="true">
+    <span>RETURN ENGINE · EQUATION 2.2</span>
+  </aside>
+
+  <div class="shell">
+    <header class="mast">
+      <div class="mark">
+        <p class="eyebrow">Private desk</p>
+        <h1>Return Engine</h1>
+      </div>
+      <p class="lede">
+        Return anatomy for a single holding. Price path, income, and position size
+        decomposed the way the engine models them:
+        <em>R = (V<sub>f</sub> − V<sub>0</sub>) / V<sub>0</sub> + D / V<sub>0</sub></em>
+      </p>
+      <div class="mast-meta">
+        <span class="chip" id="engine-chip">ReturnEngine idle</span>
+        <span class="chip ghost">PortfolioService</span>
+      </div>
+    </header>
+
+    <main class="stage">
+      <section class="ticket" aria-labelledby="ticket-title">
+        <div class="panel-head">
+          <h2 id="ticket-title">Ticket</h2>
+          <p>Validated by <code>InvestmentInput</code></p>
+        </div>
+
+        <form id="ticket-form" novalidate>
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-kicker">V<sub>0</sub></span>
+              <span class="field-name">Initial price</span>
+              <span class="field-control">
+                <span class="affix">$</span>
+                <input id="initial_price" name="initial_price" type="number" inputmode="decimal" min="0.01" step="0.01" required value="{{ example.initial_price }}" />
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-kicker">V<sub>f</sub></span>
+              <span class="field-name">Final price</span>
+              <span class="field-control">
+                <span class="affix">$</span>
+                <input id="final_price" name="final_price" type="number" inputmode="decimal" min="0" step="0.01" required value="{{ example.final_price }}" />
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-kicker">D</span>
+              <span class="field-name">Dividend / share</span>
+              <span class="field-control">
+                <span class="affix">$</span>
+                <input id="dividend" name="dividend" type="number" inputmode="decimal" min="0" step="0.01" value="{{ example.dividend }}" />
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-kicker">N</span>
+              <span class="field-name">Shares</span>
+              <span class="field-control">
+                <input id="shares" name="shares" type="number" inputmode="numeric" min="1" step="1" required value="{{ example.shares }}" />
+                <span class="affix trailing">sh</span>
+              </span>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Run analysis</button>
+            <button type="button" class="btn ghost" id="example-btn">Load sample ticket</button>
+          </div>
+        </form>
+
+        <p class="rules">
+          Engine rules: initial price &gt; 0 · final price ≥ 0 · dividend ≥ 0 · shares &gt; 0
+        </p>
+      </section>
+
+      <section class="statement" aria-labelledby="statement-title" aria-live="polite">
+        <div class="panel-head">
+          <h2 id="statement-title">Statement</h2>
+          <p id="statement-status">Awaiting first run</p>
+        </div>
+
+        <div id="error-ribbon" class="ribbon" role="alert" hidden></div>
+
+        <div id="result-body" class="result-body is-idle">
+          <div class="hero">
+            <p class="hero-label">Total return rate</p>
+            <p class="hero-figure" id="hero-return">—</p>
+            <p class="hero-note" id="hero-note">Capital gain plus dividend yield</p>
+            <svg id="price-path" class="price-path" viewBox="0 0 280 72" aria-hidden="true">
+              <line class="axis" x1="16" y1="56" x2="264" y2="56"></line>
+              <path id="path-line" d="M24 40 L256 40"></path>
+              <circle id="path-start" cx="24" cy="40" r="4"></circle>
+              <circle id="path-end" cx="256" cy="40" r="4"></circle>
+              <text id="path-start-label" x="24" y="18">V0</text>
+              <text id="path-end-label" x="256" y="18">Vf</text>
+            </svg>
+          </div>
+
+          <div class="compose">
+            <div class="compose-meta">
+              <span>Return mix</span>
+              <span id="compose-split">—</span>
+            </div>
+            <div class="compose-track" role="img" aria-label="Capital gain versus dividend yield">
+              <div class="compose-gain" id="bar-gain"></div>
+              <div class="compose-div" id="bar-div"></div>
+            </div>
+            <div class="compose-legend">
+              <span><i class="swatch gain"></i> Capital gain</span>
+              <span><i class="swatch income"></i> Dividend yield</span>
+            </div>
+          </div>
+
+          <dl class="ledger">
+            <div>
+              <dt>Capital gain return</dt>
+              <dd id="m-cagr">—</dd>
+            </div>
+            <div>
+              <dt>Dividend yield</dt>
+              <dd id="m-div">—</dd>
+            </div>
+            <div>
+              <dt>Gross price ratio</dt>
+              <dd id="m-gross">—</dd>
+            </div>
+            <div class="emphasis">
+              <dt>Total dollar return</dt>
+              <dd id="m-dollars">—</dd>
+            </div>
+          </dl>
+
+          <div class="waterfall" aria-label="Position waterfall">
+            <h3>Position path</h3>
+            <ul id="waterfall-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="formula" aria-label="Live equation">
+      <p class="formula-kicker">Equation 2.2 · live substitution</p>
+      <p class="formula-line" id="formula-line">
+        R = (V<sub>f</sub> − V<sub>0</sub>) / V<sub>0</sub> + D / V<sub>0</sub>
+      </p>
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
