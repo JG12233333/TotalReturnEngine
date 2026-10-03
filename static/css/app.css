@@ -290,15 +290,6 @@ input[type="number"] {
   padding: 12px 16px;
 }
 
-.btn.primary {
-  background: var(--ivory);
-  color: var(--ink);
-}
-
-.btn.primary:hover {
-  background: #f6f1e6;
-}
-
 .btn.ghost {
   background: transparent;
   border-color: var(--rule-strong);
